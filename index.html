@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Posts</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+    }
+
+    .post {
+      border-bottom: 1px solid #ccc;
+      padding: 10px 0;
+    }
+
+    .post h2 {
+      margin: 0 0 5px;
+    }
+
+    .post p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Lista de Posts</h1>
+  <div id="posts-container"></div>
+
+  <script>
+    fetch("http://localhost/projects/headless_cms/wordpress/wp-json/wp/v2/posts/")
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("posts-container");
+
+        data.forEach(post => {
+          //console.log(post);
+          //let permalink = 'cartelera/pelicula_valientes'
+          let permalink = 'detalle.html';
+          let postid = post.id;
+          let fullUrl = `${permalink}?id=${postid}`;
+          console.log(fullUrl);
+
+          const postElement = document.createElement("div");
+          postElement.classList.add("post");
+
+          postElement.innerHTML = `
+                        <h2>${post.title.rendered}</h2>
+                        <p><strong>Fecha:</strong> ${new Date(post.date).toLocaleDateString()}</p>
+                        <p>${post.excerpt.rendered}</p>
+                        <!--<a href="${post.link}" target="_blank">Leer más</a>-->
+                        <a href="${fullUrl}" target="_blank">Leer más</a>
+                    `;
+
+          container.appendChild(postElement);
+        });
+      })
+      .catch(error => console.error("Error al obtener los posts:", error));
+  </script>
+
+</body>
+
+</html>

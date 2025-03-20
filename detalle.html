@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalle de la Película</title>
+</head>
+
+<body>
+  <h1 id="post-title">Cargando...</h1>
+  <div id="post-content"></div>
+  <script>
+    // 1️⃣ Obtener el ID de la URL
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get("id");
+
+    // 2️⃣ Verificar si el ID existe
+    if (postId) {
+      // 3️⃣ Llamar a la API de WordPress
+      fetch(`http://localhost/projects/headless_cms/wordpress/wp-json/wp/v2/posts/${postId}`)
+        .then(response => response.json())
+        .then(post => {
+          // 4️⃣ Mostrar los datos en la página
+          document.getElementById("post-title").innerHTML = post.title.rendered;
+          document.getElementById("post-content").innerHTML = post.content.rendered;
+        })
+        .catch(error => console.error("Error al obtener el post:", error));
+    } else {
+      document.getElementById("post-title").innerText = "Post no encontrado";
+    }
+  </script>
+</body>
+
+</html>
