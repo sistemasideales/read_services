@@ -21,9 +21,28 @@
       fetch(`http://localhost/projects/headless_cms/wordpress/wp-json/wp/v2/posts/${postId}`)
         .then(response => response.json())
         .then(post => {
+          let featuredMediaId = post.featured_media;
           // 4️⃣ Mostrar los datos en la página
           document.getElementById("post-title").innerHTML = post.title.rendered;
           document.getElementById("post-content").innerHTML = post.content.rendered;
+
+          if (featuredMediaId) {
+            fetch(`http://localhost/projects/headless_cms/wordpress/wp-json/wp/v2/media/${featuredMediaId}`)
+              .then(response => response.json())
+              .then(media => {
+                const imageUrl = media.source_url;
+                console.log(imageUrl);
+
+                // Crear el elemento <img> y agregarlo al post
+                const imgElement = document.createElement("img");
+                imgElement.src = imageUrl;
+                imgElement.alt = post.title.rendered;
+
+                document.getElementById("post-content").appendChild(imgElement);
+              })
+              .catch(error => console.error("Error al obtener la imagen destacada:", error));
+          }
+
         })
         .catch(error => console.error("Error al obtener el post:", error));
     } else {

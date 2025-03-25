@@ -24,6 +24,13 @@
     .post p {
       margin: 5px 0;
     }
+
+    .post img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 10px 0;
+    }
   </style>
 </head>
 
@@ -39,25 +46,42 @@
         const container = document.getElementById("posts-container");
 
         data.forEach(post => {
-          //console.log(post);
-          //let permalink = 'cartelera/pelicula_valientes'
           let permalink = 'detalle.html';
           let postid = post.id;
           let fullUrl = `${permalink}?id=${postid}`;
-          console.log(fullUrl);
+          let featuredMediaId = post.featured_media;
 
           const postElement = document.createElement("div");
           postElement.classList.add("post");
 
+          // Estructura base del post (sin imagen todavía)
           postElement.innerHTML = `
-                        <h2>${post.title.rendered}</h2>
-                        <p><strong>Fecha:</strong> ${new Date(post.date).toLocaleDateString()}</p>
-                        <p>${post.excerpt.rendered}</p>
-                        <!--<a href="${post.link}" target="_blank">Leer más</a>-->
-                        <a href="${fullUrl}" target="_blank">Leer más</a>
-                    `;
+            <h2>${post.title.rendered}</h2>
+            <p><strong>Fecha:</strong> ${new Date(post.date).toLocaleDateString()}</p>
+            <p>${post.excerpt.rendered}</p>
+            <div class="image-container"></div> <!-- Aquí agregaremos la imagen después -->
+            <a href="${fullUrl}" target="_blank">Leer más</a>
+          `;
 
           container.appendChild(postElement);
+
+          // Si hay imagen destacada, hacer fetch para obtenerla
+          if (featuredMediaId) {
+            fetch(`http://localhost/projects/headless_cms/wordpress/wp-json/wp/v2/media/${featuredMediaId}`)
+              .then(response => response.json())
+              .then(media => {
+                const imageUrl = media.source_url;
+
+                // Crear el elemento <img> y agregarlo al post
+                const imgElement = document.createElement("img");
+                imgElement.src = imageUrl;
+                imgElement.alt = post.title.rendered;
+
+                // Insertar la imagen en el contenedor del post
+                postElement.querySelector(".image-container").appendChild(imgElement);
+              })
+              .catch(error => console.error("Error al obtener la imagen destacada:", error));
+          }
         });
       })
       .catch(error => console.error("Error al obtener los posts:", error));
